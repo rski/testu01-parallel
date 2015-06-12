@@ -89,6 +89,7 @@ static int TestNumber[1 + NDIM] = { 0 };
 
 
 
+
 /*-------------------------------- Functions ------------------------------*/
 
 
@@ -4394,3 +4395,24 @@ void bbattery_FIPS_140_2File (char *filename)
 
 
 /*=========================================================================*/
+
+
+
+void startSingleTest(unif01_Gen * gen, int testNumber, int testSuite){
+  int Rep[1+NDIM] = {0};
+  Rep[testNumber] = 1;
+  switch(testSuite){
+    case 0:
+      SmallCrush(gen, NULL, Rep);
+      break;
+    case 1:
+      Crush(gen, Rep);
+      break;
+    case 2:
+      BigCrush(gen, Rep);
+      break;
+    default:
+      printf("Will run test %d from suite %d\n", testNumber, testSuite);
+      break;
+  }
+}
