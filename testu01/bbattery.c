@@ -168,7 +168,7 @@ static void WriteReport (
    double nb                      /* Number of bits in the random file */
    )
 {
-   int j, co;
+   int j, co, testNumber;
 
    printf ("\n========= Summary results of ");
    printf ("%s", batName);
@@ -187,7 +187,15 @@ static void WriteReport (
    for (j = 0; j < N; j++) {
       if (pVal[j] >= 0.0)
          co++;
+         //only used if one test was run
+         testNumber = j;
    }
+
+   if (co == 1){
+      printf("%-30s %2d\n", bbattery_TestNames[testNumber], TestNumber[testNumber]);
+      WritepVal(pVal[testNumber]);
+   }
+   else{
    printf ("\n Number of statistics:  %1d\n", co);
    printf (" Total CPU time:   ");
    chrono_Write (Timer, chrono_hms);
@@ -241,6 +249,7 @@ static void WriteReport (
       printf (" All other tests were passed\n");
    }
    printf ("\n\n\n");
+   }//else
 }
 
 
