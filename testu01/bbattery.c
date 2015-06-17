@@ -192,8 +192,9 @@ static void WriteReport (
    }
 
    if (co == 1){
-      printf("%-30s %2d\n", bbattery_TestNames[testNumber], TestNumber[testNumber]);
+      printf("\n%-30s %2d\n", bbattery_TestNames[testNumber], TestNumber[testNumber]);
       WritepVal(pVal[testNumber]);
+      printf("\n");
    }
    else{
    printf ("\n Number of statistics:  %1d\n", co);
