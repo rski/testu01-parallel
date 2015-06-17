@@ -1,39 +1,80 @@
-import subprocess
+from subprocess import Popen
 import multiprocessing as mp
-
-TEST_SLAVE_EXECUTABLE = "test_slave.out"
-TEST_SUITES = {"smallCrush":"0",
-                "Crush":"1",
-                "bigCrush":"2",
-                "debug":"3"}
-TEST_SUITE_TIMES_DIR = "test_suite_times"
+from multiprocessing import Queue
+from time import sleep
+from test_definitions import TEST_SLAVE_EXECUTABLE, TEST_SUITES, TEST_ORDER_DIR,SUITE_SIZE
 
 
-def getAvailableTest(testSuite):
+def getNextTest(testSuite):
     testNumber = 1
+    testNumber = testNumber + 1
     testNumber = str(testNumber)
-    return ["./" + TEST_SLAVE_EXECUTABLE, testNumber, TEST_SUITES[testSuite]]
+    yield ["./" + TEST_SLAVE_EXECUTABLE, testNumber, TEST_SUITES[testSuite]]
 
-def startNewTest(testSuite):
-    test = getAvailableTest(testSuite)
-    print(test)
-    subprocess.call(test)
-    #exec(test)
+
+def forkTest(test, results):
+    testNumber = int(test[1])
+    return Popen(test, stdout = results[testNumber-1])
+
+
+def waitForTests(processes):
+    for process in processes:
+        if process.poll():
+            process.wait()
+
+
+def pollTests(processes):
+    for process in processes:
+        pass
+
+
+def createProcessArray():
+    if SUITE_SIZE[testSuite] <= numberOfCores:
+        processes = [None] * SUITE_SIZE[testSuite]
+        wholeSuiteInParallel = True
+    else:
+        processes =  [None] * numberOfCores
+        wholeSuiteInParallel = False
+    return (processes, wholeSuiteInParallel)
+
+
+def waitForTests(processes):
+    testsStillRunning = True
+    while (testsStillRunning):
+        testsStillRunning = False
+        for process in processes:
+            if process.poll():
+                testsStillRunning = True
+
+
+
+#forks new tests to replace all the finished processes
+def forkNewTests(processes,testSuite):
+    while(True):
+        nextTest = getNextTest(testSuite)
+        #no tests left to run
+        if not nextTest:
+            break
+        for process in processes:
+            #is this precedence correct?
+            #process.poll is not correct either
+            if not process.poll() and nextTest:
+                process = forkTests(nextTest)
+                nextTest = getNextTest(testSuite)
+            sleep(1)
+
+
+
 
 if __name__=='__main__':
+    testSuite = "smallCrush"
     numberOfCores = mp.cpu_count()
-    #for core in range(0, numberOfCores-1):
-    #    startNewTest(core)
-    #pool = mp.Pool(processes=4)
-    #results = [pool.apply(startNewTest, args=(x,)) for x in range(0,3)]
-    #processes =  [mp.Process(target=startNewTest, args=(x, )) for x in range(0,3)]
-    processes =  [mp.Process(target=startNewTest, args=('smallCrush', ))]
-    for p in processes:
-        p.start()
+    #wholeSuiteInParallel actually might not be needed
+    processes, wholeSuiteInParallel = createProcessArray()
 
-    for p in processes:
-        p.join()
+    startTests(processes)
 
-    print("###################\n###################\nAfter the join")
+    if not wholeSuiteInParallel:
+        forkNewTests(processes)
 
-    #print(results)
+    waitForLastTests(processes)
