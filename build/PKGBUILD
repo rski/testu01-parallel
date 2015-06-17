@@ -1,15 +1,15 @@
 # Maintainer: Flaviu Tamas <tamas.flaviu@gmail.com>
 # Contributor: Guangyu Zhang <zguangyu123@gmail.com>
-pkgname=testu01-patched
-_pkgname=TestU01-patched
+pkgname=testu01
+_pkgname=TestU01
 pkgver=1
 pkgrel=1
 pkgdesc="A library offering a collection of utilities for the empirical statistical testing of uniform random number generators"
 arch=('i686' 'x86_64')
-url="https://rski@bitbucket.org/rski/testu01-patched.git"
+url="https://rski@bitbucket.org/rski/testu01.git"
 license=('custom')
 depends=('glibc')
-source=('testu01-patched.zip')
+source=('testu01.zip')
 sha256sums=('SKIP')
 conflicts=('testu01')
 

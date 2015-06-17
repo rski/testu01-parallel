@@ -8,8 +8,9 @@ echo $TESTU01DIR
 
 cd ${TESTU01PARENT}
 echo ${PWD}
-zip -r ${TESTU01DIR}/build/testu01-patched testu01-patched/
+zip -r ${TESTU01DIR}/build/testu01 testu01
 
 cd ${TESTU01DIR}/build
 makepkg -f
-#sudo pacman -U testu01-patched-1-1-x86_64.pkg.tar.xz
+sudo pacman -U testu01-1-1-x86_64.pkg.tar.xz
+rm -Rf src pkg 
