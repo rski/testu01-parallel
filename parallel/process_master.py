@@ -71,6 +71,7 @@ def forkNewTests(processes, testGen, results):
 def getLastResults(processes, results):
     for process in processes:
         results[process[1]-1] = process[0].communicate()
+    return results
 
 
 def startTests(testGen, processes):
@@ -100,3 +101,7 @@ if __name__=='__main__':
 
     waitForTests(processes)
     results = getLastResults(processes, results)
+    for result in results:
+        print("#############")
+        print(result)
+        print("#############")
