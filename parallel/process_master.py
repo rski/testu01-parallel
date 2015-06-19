@@ -3,29 +3,28 @@ import multiprocessing as mp
 from multiprocessing import Queue
 from time import sleep
 from test_definitions import TEST_SLAVE_EXECUTABLE, TEST_SUITES, TEST_ORDER_DIR,SUITE_SIZE
+from results import createResultsArray
+from order import *
 
-
-def getNextTest(testSuite):
-    testNumber = 1
-    testNumber = testNumber + 1
-    testNumber = str(testNumber)
-    yield ["./" + TEST_SLAVE_EXECUTABLE, testNumber, TEST_SUITES[testSuite]]
 
 
 def forkTest(test, results):
     testNumber = int(test[1])
+    print(test)
+    #sleep (10)
+    #stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    #get the output with stdout, stderr = testProcess.communicate()
+    #otherwise a deadlock might occurr
     return Popen(test, stdout = results[testNumber-1])
 
 
-def waitForTests(processes):
+def pollTests(processes):
+
     for process in processes:
         if process.poll():
-            process.wait()
+            return True
 
-
-def pollTests(processes):
-    for process in processes:
-        pass
+    return False
 
 
 def createProcessArray():
@@ -41,14 +40,12 @@ def createProcessArray():
 def waitForTests(processes):
     testsStillRunning = True
     while (testsStillRunning):
-        testsStillRunning = False
-        for process in processes:
-            if process.poll():
-                testsStillRunning = True
-
+        testsStillRunning = pollTests(processes)
+        sleep(1)
 
 
 #forks new tests to replace all the finished processes
+#this function is horribly broken
 def forkNewTests(processes,testSuite):
     while(True):
         nextTest = getNextTest(testSuite)
@@ -59,11 +56,15 @@ def forkNewTests(processes,testSuite):
             #is this precedence correct?
             #process.poll is not correct either
             if not process.poll() and nextTest:
-                process = forkTests(nextTest)
+                process = forkTest(nextTest)
                 nextTest = getNextTest(testSuite)
-            sleep(1)
+        sleep(1)
 
 
+def startTests(testGen, processes, results):
+    for process in processes:
+        test = next(testGen)
+        process = forkTest(test, results)
 
 
 if __name__=='__main__':
@@ -71,8 +72,10 @@ if __name__=='__main__':
     numberOfCores = mp.cpu_count()
     #wholeSuiteInParallel actually might not be needed
     processes, wholeSuiteInParallel = createProcessArray()
+    results = createResultsArray(testSuite)
+    testGen = testGenerator(testSuite)
 
-    startTests(processes)
+    startTests(testGen, processes, results)
 
     if not wholeSuiteInParallel:
         forkNewTests(processes)
