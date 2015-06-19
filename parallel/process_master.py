@@ -8,7 +8,7 @@ from order import *
 
 
 
-def forkTest(test, results):
+def forkTest(test):
     testNumber = int(test[1])
     print(test)
     #sleep (10)
@@ -47,8 +47,10 @@ def waitForTests(processes):
 #forks new tests to replace all the finished processes
 #this function is horribly broken
 def forkNewTests(processes, testGen, results):
+    numOfProcesses = len(processes)
+    nextTest = next(testGen)
+
     while(True):
-        nextTest = next(testGen)
         #no tests left to run
         if not nextTest:
             break
@@ -56,16 +58,16 @@ def forkNewTests(processes, testGen, results):
             #is this precedence correct?
             #process.poll is not correct either
             if not process.poll() and nextTest:
-                process = forkTest(nextTest, results)
+                process = forkTest(nextTest)
                 nextTest = next(testGen)
         sleep(1)
 
 
-def startTests(testGen, processes, results):
+def startTests(testGen, processes):
     testProcesses = []
     for process in processes:
         test = next(testGen)
-        process = forkTest(test, results)
+        process = forkTest(test)
         testProcesses.append(process)
         print(process)
     processes = testProcesses
@@ -81,7 +83,7 @@ if __name__=='__main__':
     results = createResultsArray(testSuite)
     testGen = testGenerator(testSuite)
 
-    processes = startTests(testGen, processes, results)
+    processes = startTests(testGen, processes)
     print(processes)
 
     if not wholeSuiteInParallel:
