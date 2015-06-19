@@ -10,7 +10,6 @@ from order import *
 
 def forkTest(test):
     testNumber = int(test[1])
-    print(test)
     #sleep (10)
     #stdout=subprocess.PIPE, stderr=subprocess.PIPE
     #get the output with stdout, stderr = testProcess.communicate()
@@ -21,7 +20,7 @@ def forkTest(test):
 def pollTests(processes):
 
     for process in processes:
-        if process.poll():
+        if process[0].poll():
             return True
 
     return False
@@ -45,33 +44,44 @@ def waitForTests(processes):
 
 
 #forks new tests to replace all the finished processes
-#this function is horribly broken
 def forkNewTests(processes, testGen, results):
     numOfProcesses = len(processes)
     nextTest = next(testGen)
+    testNumber = int(nextTest[1])
 
     while(True):
         #no tests left to run
         if not nextTest:
             break
-        for process in processes:
+        for i in range(0, numOfProcesses):
             #is this precedence correct?
             #process.poll is not correct either
-            if not process.poll() and nextTest:
-                process = forkTest(nextTest)
+            if not processes[i][0].poll() and nextTest:
+                testNumber = int(nextTest[1])
+                print("replacing test {0} with test {1}".format(processes[i][1], testNumber))
+                print(processes[i][0])
+                results[testNumber-1],_ = processes[i][0].communicate()
+                processes[i] = (forkTest(nextTest), testNumber)
+                print(processes[i][0])
                 nextTest = next(testGen)
         sleep(1)
+    return results, processes
+
+
+def getLastResults(processes, results):
+    for process in processes:
+        results[process[1]-1] = process[0].communicate()
 
 
 def startTests(testGen, processes):
     testProcesses = []
     for process in processes:
         test = next(testGen)
-        process = forkTest(test)
+        testNumber = int(test[1])
+        process = (forkTest(test), testNumber)
+        print("Started test {0}:{1}".format(testNumber, process))
         testProcesses.append(process)
-        print(process)
     processes = testProcesses
-    print(processes)
     return processes
 
 
@@ -84,9 +94,9 @@ if __name__=='__main__':
     testGen = testGenerator(testSuite)
 
     processes = startTests(testGen, processes)
-    print(processes)
 
     if not wholeSuiteInParallel:
-        forkNewTests(processes, testGen, results)
+        results, processes = forkNewTests(processes, testGen, results)
 
     waitForTests(processes)
+    results = getLastResults(processes, results)
