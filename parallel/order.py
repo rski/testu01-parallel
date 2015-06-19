@@ -10,7 +10,8 @@ def testOrderFromFile(testSuite):
     print(testOrderFileName)
     with open(testOrderFileName) as testOrderFile:
         for line in testOrderFile:
-            testOrder.append(line)
+            testNumber = line.rstrip('\n')
+            testOrder.append(testNumber)
 
     return testOrder
 
@@ -22,5 +23,3 @@ def testGenerator(testSuite):
 
     while True:
         yield None
-
-
