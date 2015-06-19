@@ -10,7 +10,7 @@ def testOrderFromFile(testSuite):
     print(testOrderFileName)
     with open(testOrderFileName) as testOrderFile:
         for line in testOrderFile:
-            testOrder.append(int(line))
+            testOrder.append(line)
 
     return testOrder
 
