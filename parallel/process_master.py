@@ -1,4 +1,4 @@
-from subprocess import Popen
+from subprocess import Popen, PIPE
 import multiprocessing as mp
 from multiprocessing import Queue
 from time import sleep
@@ -15,7 +15,7 @@ def forkTest(test, results):
     #stdout=subprocess.PIPE, stderr=subprocess.PIPE
     #get the output with stdout, stderr = testProcess.communicate()
     #otherwise a deadlock might occurr
-    return Popen(test, stdout = results[testNumber-1])
+    return Popen(test, stdout = PIPE )#results[testNumber-1])
 
 
 def pollTests(processes):
@@ -46,9 +46,9 @@ def waitForTests(processes):
 
 #forks new tests to replace all the finished processes
 #this function is horribly broken
-def forkNewTests(processes,testSuite):
+def forkNewTests(processes, testGen, results):
     while(True):
-        nextTest = getNextTest(testSuite)
+        nextTest = next(testGen)
         #no tests left to run
         if not nextTest:
             break
@@ -56,15 +56,21 @@ def forkNewTests(processes,testSuite):
             #is this precedence correct?
             #process.poll is not correct either
             if not process.poll() and nextTest:
-                process = forkTest(nextTest)
-                nextTest = getNextTest(testSuite)
+                process = forkTest(nextTest, results)
+                nextTest = next(testGen)
         sleep(1)
 
 
 def startTests(testGen, processes, results):
+    testProcesses = []
     for process in processes:
         test = next(testGen)
         process = forkTest(test, results)
+        testProcesses.append(process)
+        print(process)
+    processes = testProcesses
+    print(processes)
+    return processes
 
 
 if __name__=='__main__':
@@ -75,9 +81,10 @@ if __name__=='__main__':
     results = createResultsArray(testSuite)
     testGen = testGenerator(testSuite)
 
-    startTests(testGen, processes, results)
+    processes = startTests(testGen, processes, results)
+    print(processes)
 
     if not wholeSuiteInParallel:
-        forkNewTests(processes)
+        forkNewTests(processes, testGen, results)
 
-    waitForLastTests(processes)
+    waitForTests(processes)
