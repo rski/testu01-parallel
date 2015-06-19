@@ -1,3 +1,5 @@
+from test_definitions import SUITE_SIZE
+
 def createResultsArray(testSuite):
     results = [None] * SUITE_SIZE[testSuite]
     return results
