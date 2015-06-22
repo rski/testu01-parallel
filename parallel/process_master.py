@@ -81,18 +81,6 @@ def getLastResults(processes, results):
     return results
 
 
-def startTests(testGen, processes):
-    testProcesses = []
-    for process in processes:
-        test = next(testGen)
-        testNumber = int(test[1])
-        process = (forkTest(test), testNumber)
-        logging.debug("Started test {0}:{1}".format(testNumber, process))
-        testProcesses.append(process)
-    processes = testProcesses
-    return processes
-
-
 if __name__=='__main__':
     testSuite = "smallCrush"
     numberOfCores = mp.cpu_count()
@@ -101,9 +89,6 @@ if __name__=='__main__':
     results = createResultsArray(testSuite)
     testGen = testGenerator(testSuite)
 
-    #processes = startTests(testGen, processes)
-
-    #if not wholeSuiteInParallel:
     results, processes = forkNewTests(processes, testGen, results)
 
     waitForTests(processes)
