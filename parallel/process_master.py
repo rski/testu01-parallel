@@ -2,7 +2,7 @@ from subprocess import Popen, PIPE
 import multiprocessing as mp
 from time import sleep
 from test_definitions import TEST_SLAVE_EXECUTABLE, TEST_SUITES, TEST_ORDER_DIR,SUITE_SIZE
-from results import createResultsArray
+from results import createResultsArray, handleResults
 from order import *
 import logging
 
@@ -80,7 +80,7 @@ def getLastResults(processes, results):
 
 
 if __name__=='__main__':
-    testSuite = "BigCrush"
+    testSuite = "smallCrush"
     numberOfCores = mp.cpu_count()
     #wholeSuiteInParallel actually might not be needed
     processes, wholeSuiteInParallel = createProcessArray()
@@ -91,3 +91,4 @@ if __name__=='__main__':
 
     waitForTests(processes)
     results = getLastResults(processes, results)
+    handleResults(results)
