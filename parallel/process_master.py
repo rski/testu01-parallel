@@ -5,6 +5,7 @@ from test_definitions import TEST_SLAVE_EXECUTABLE, TEST_SUITES, TEST_ORDER_DIR,
 from results import createResultsArray, handleResults
 from order import *
 import logging
+import datetime
 
 logging.basicConfig(filename='/tmp/testu01_parallel.log', filemode='w', level=logging.DEBUG)
 logging.debug("\n\n\n")
@@ -80,6 +81,7 @@ def getLastResults(processes, results):
 
 
 if __name__=='__main__':
+    startTime = datetime.datetime.now()
     testSuite = "smallCrush"
     numberOfCores = mp.cpu_count()
     #wholeSuiteInParallel actually might not be needed
@@ -91,4 +93,6 @@ if __name__=='__main__':
 
     waitForTests(processes)
     results = getLastResults(processes, results)
-    handleResults(results)
+    endTime = datetime.datetime.now()
+    totalTime = (endTime - startTime).total_seconds()
+    handleResults(results, testSuite, totalTime)

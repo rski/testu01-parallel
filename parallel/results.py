@@ -1,35 +1,68 @@
 from test_definitions import SUITE_SIZE
+import re
 
-def handleResults(results):
-    stringResults = binToString(results)
-    printResults(stringResults)
+def handleResults(results, testSuite, totalTime):
+    results = binToString(results)
+    header, results = stripHeaders(results)
+    summaries, results = stripSummaries(results)
+    printHeader(header)
+    printResults(results)
+    failedTests = getStatistics(summaries)
+    printSummary(testSuite, failedTests, totalTime)
+
+
+def getStatistics(summaries):
+    failedTests = []
+    for summary in summaries:
+        failedTest = getFailedTest(summary)
+        if failedTest is not None:
+            failedTests.append(failedTest)
+    return failedTests
+
+def addCpuTimes(cpuTimes):
+    return []
+
+
+def printSummary(testSuite, failedTests, totalTime):
+    print("\n" * 3)
+    print("========= Summary results of {0} =========".format(testSuite))
+    print("Total time: {0}s".format(totalTime))
+    if failedTests is not None:
+        print("The following tests gave p-values outside [0.001, 0.9990]:")
+        print("(eps  means a value < 1.0e-300):")
+        print("(eps1 means a value < 1.0e-15):")
+        #ugly but matches the eps values under it
+        print("\tTest\t\t\t      p-value")
+        print(" ----------------------------------------------")
+        for test in failedTests:
+            print(test)
+        print(" ----------------------------------------------")
+
 
 def createResultsArray(testSuite):
     results = [None] * SUITE_SIZE[testSuite]
     return results
 
 
-def extractTestResults(rawResults):
-    #result = [ testName, testNumber, p_value, rawResult ]
-    results = []
-    for rawResult in rawResults:
-        result = rawResult
-        results.append(result)
+def getFailedTest(summary):
+    testFailureRe = re.compile('\s+\d+\s+\w+\s+..+', re.IGNORECASE)
+    for line in summary:
+        match = testFailureRe.match(line)
+        if match is not None:
+            return match.group()
 
-    return results
-
-
-def interpretResults(results):
-    for result in results:
-        resultList = result.split("\n")
-        #do stuff with the lines
-
-    return interpretedResults
+    return None
 
 
 def printResults(results):
     for result in results:
-        print(result)
+        for line in result:
+            print(line)
+
+
+def printHeader(header):
+    for line in header:
+        print(line)
 
 
 def binToString(results):
@@ -37,3 +70,32 @@ def binToString(results):
     for result in results:
         stringResults.append(result.decode('utf-8'))
     return stringResults
+
+
+def stripHeaders(results):
+    newResults = []
+    headersize = 12
+    for result in results:
+        tempResult = result.split("\n")
+        newResults.append(tempResult[headersize-1:])
+    header = tempResult[0:headersize-1]
+
+    return header, newResults
+
+
+def stripSummaries(results):
+    newResults = []
+    summaries = []
+    for result in results:
+        startOfSummary = getStartOfSummary(result)
+        newResults.append(result[0:startOfSummary])
+        summary = result[startOfSummary:len(result)]
+        summaries.append(summary)
+    return summaries, newResults
+
+
+def getStartOfSummary(result):
+    startOfSummary = [i for i,x in enumerate(result) if x == "Generator state:"]
+    print(startOfSummary)
+    startOfSummary = startOfSummary[-1]+2
+    return startOfSummary
