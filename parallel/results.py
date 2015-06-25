@@ -1,14 +1,24 @@
 from test_definitions import SUITE_SIZE
 import re
+import logging
+
+logging.basicConfig(filename='/tmp/testu01_results.log', filemode='w', level=logging.DEBUG)
 
 def handleResults(results, testSuite, totalTime):
     results = binToString(results)
     header, results = stripHeaders(results)
     summaries, results = stripSummaries(results)
+    logSummaries(summaries)
     printHeader(header)
     printResults(results)
     failedTests = getStatistics(summaries)
     printSummary(testSuite, failedTests, totalTime)
+
+
+def logSummaries(summaries):
+    for summary in summaries:
+        for line in summary:
+            logging.debug(line)
 
 
 def getStatistics(summaries):
@@ -45,7 +55,7 @@ def createResultsArray(testSuite):
 
 
 def getFailedTest(summary):
-    testFailureRe = re.compile('\s+\d+\s+\w+\s+..+', re.IGNORECASE)
+    testFailureRe = re.compile('\s*\d+\s+\w+..+', re.IGNORECASE)
     for line in summary:
         match = testFailureRe.match(line)
         if match is not None:
