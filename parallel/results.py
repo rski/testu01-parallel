@@ -22,15 +22,12 @@ def logSummaries(summaries):
 
 
 def getStatistics(summaries):
-    failedTests = []
+    allFailedTests = []
     for summary in summaries:
-        failedTest = getFailedTest(summary)
-        if failedTest is not None:
-            failedTests.append(failedTest)
-    return failedTests
-
-def addCpuTimes(cpuTimes):
-    return []
+        failedTests = getFailedTests(summary)
+        if failedTests is not None:
+            allFailedTests = allFailedTests + failedTests
+    return allFailedTests
 
 
 def printSummary(testSuite, failedTests, totalTime):
@@ -54,14 +51,17 @@ def createResultsArray(testSuite):
     return results
 
 
-def getFailedTest(summary):
+def getFailedTests(summary):
     testFailureRe = re.compile('\s*\d+\s+\w+..+', re.IGNORECASE)
+    failedTests = []
     for line in summary:
         match = testFailureRe.match(line)
         if match is not None:
-            return match.group()
-
-    return None
+            failedTests.append(match.group())
+    if failedTests:
+        return failedTests
+    else:
+        return None
 
 
 def printResults(results):
@@ -106,6 +106,6 @@ def stripSummaries(results):
 
 def getStartOfSummary(result):
     startOfSummary = [i for i,x in enumerate(result) if x == "Generator state:"]
-    print(startOfSummary)
+    #print(startOfSummary)
     startOfSummary = startOfSummary[-1]+2
     return startOfSummary
