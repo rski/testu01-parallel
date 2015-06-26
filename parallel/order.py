@@ -7,7 +7,7 @@ import os
 def testOrderFromFile(testSuite):
     testOrder = []
     testOrderFileName = os.path.join(TEST_ORDER_DIR, "{0}_order.txt".format(testSuite))
-    print(testOrderFileName)
+    print("Using order file {0}".format(testOrderFileName))
     with open(testOrderFileName) as testOrderFile:
         for line in testOrderFile:
             testNumber = line.rstrip('\n')

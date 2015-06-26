@@ -18,12 +18,10 @@ int main(int argc, char **argv){
   testSuite = atoi(argv[2]);
 
   //start up a generator and get a test running on it
-//TODO: how to pass a generator to the slave?
   unif01_Gen *gen;
   gen = ulcg_CreateLCG (2147483647, 16807, 0, 12345);
-  //start the test that was passed to it
+  //start the test & suite that was passed 
   startSingleTest(gen, testNumber, testSuite);
-  //bbattery_SmallCrush (gen);
   ulcg_DeleteGen (gen);
   return 0;
 }

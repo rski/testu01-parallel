@@ -106,6 +106,6 @@ def stripSummaries(results):
 
 def getStartOfSummary(result):
     startOfSummary = [i for i,x in enumerate(result) if x == "Generator state:"]
-    #print(startOfSummary)
+    #allow for whitespace
     startOfSummary = startOfSummary[-1]+2
     return startOfSummary

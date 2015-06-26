@@ -7,4 +7,4 @@ TEST_SUITES = {"smallCrush":"0",
 TEST_ORDER_DIR = "test_order"
 SUITE_SIZE = {"smallCrush":10,
                 "Crush": 12,
-                "BigCrush":106}
+                "bigCrush":106}
