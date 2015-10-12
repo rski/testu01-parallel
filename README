@@ -14,10 +14,9 @@ e-mail:  lecuyer@iro.umontreal.ca
 http://www.iro.umontreal.ca/~lecuyer/
 
 This is a modified version of the package, part of a BEng project.
-It should not be used as at the moment it is highly experimental and frequently changed.
-The files testu01/bbattery.{tex,c} has been edited and the directories build and parallel and their files are completely new and not associated with the original package.
-Contributions are welcome after 1/7/2015.
-
+Use at your own risk.
+The files testu01/bbattery.{tex,c} have been edited.
+The directories build and parallel and their files are completely new and not associated with the original package.
 
 ---------------------------------------------------------------------------
 DIRECTORY STRUCTURE
